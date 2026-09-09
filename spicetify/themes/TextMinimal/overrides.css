@@ -1,0 +1,47 @@
+/* TextMinimal — overrides layered on spicetify's stock "text" theme.
+   Appended to a copy of text/user.css by install.sh.
+   Upstream: https://github.com/spicetify/spicetify-themes/tree/master/text */
+
+/* 1. Kill the wireframe pane labels (Pages/Library/Main/Playing/Sidebar).
+      Their `margin:-10px` is what clipped "Pages" off the top edge. */
+.Root__nav-bar .main-yourLibraryX-entryPoints:nth-child(1)::before,
+.Root__nav-bar .main-yourLibraryX-entryPoints:nth-child(2)::before,
+.Root__main-view::before,
+.Root__now-playing-bar::before,
+.Root__right-sidebar > section:not(:empty)::before {
+    content: none !important;
+    display: none !important;
+}
+
+/* 2. Slim the progress bar: 16px slab -> 4px line */
+.progress-bar {
+    --progress-bar-height: 4px !important;
+}
+.playback-bar .progress-bar {
+    --progress-bar-height: 4px !important;
+}
+
+/* 3. Give the library panes their top space back */
+.Root__nav-bar .main-yourLibraryX-entryPoints {
+    padding-top: 0 !important;
+}
+
+/* 4. Filter chips: mono font is wide, so let them wrap instead of
+      truncating ("Albums" -> "Albur>"). Real class is filterArea. */
+.main-yourLibraryX-filterArea {
+    flex-wrap: wrap !important;
+    row-gap: 6px !important;
+    overflow: visible !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+.main-yourLibraryX-filterArea button[class*="scroll"],
+.main-yourLibraryX-filterArea > button:last-child:not([class*="Chip"]) {
+    display: none !important;
+}
+
+/* 5. Drop the orphan "/" hanging under the elapsed-time counter */
+.playback-bar__progress-time-elapsed::after {
+    content: none !important;
+}
+
