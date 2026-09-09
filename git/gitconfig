@@ -1,0 +1,17 @@
+[user]
+	name = TAZER
+	email = ajcoolx619@gmail.com
+[core]
+	editor = nano
+[safe]
+	directory = /Mercor_Interview/black
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[submodule]
+	recurse = true
+[status]
+	submoduleSummary = true
