@@ -32,12 +32,80 @@ Loaded from `.zshrc` with `eval "$(starship init zsh)"` — that one line is the
 
 ## spicetify
 
-`TextMinimal` — spicetify's stock [`text`](https://github.com/spicetify/spicetify-themes/tree/master/text)
-theme with `overrides.css` layered on top. Only the overrides live here, not a fork of the
-upstream theme.
+**Hazy** — a translucent theme ([Astromations/Hazy](https://github.com/Astromations/Hazy)): frosted
+panels floating over the album art. Replaced `TextMinimal`, which is still in `themes/` for when the
+monospace-wireframe mood comes back.
 
-Stock `text` is a deliberately stark monospace wireframe, and I liked the font but not the
-wireframe part. What the overrides undo:
+Worth being precise about what "translucent" buys you on macOS, because the word oversells it. It's
+`backdrop-filter: blur(25px)` on panels sitting over an *in-app* background. Not see-through to the
+desktop. Spotify's macOS window is an opaque Chromium `NSWindow` and spicetify can't set native
+vibrancy on it, so frosted-glass-over-album-art is the ceiling.
+
+### hazy is vendored, not installed the way upstream says
+
+Stock, Hazy's `user.css` is 70 bytes — an `@import` from jsDelivr — and its `theme.js` is 268 bytes
+of remote `<script>` loader. The normal install pulls ~105KB of CSS *and JS* off a third-party CDN
+into the Spotify client on every launch, with full Spicetify API access, updating silently whenever
+upstream pushes. Pinned to `1926d9d` instead:
+
+```sh
+T=~/.config/spicetify/Themes/Hazy && mkdir -p "$T"
+B=https://raw.githubusercontent.com/Astromations/Hazy/1926d9db3e0313b68ca6e2193c2b278e733ac3c4
+curl -fsSL -o "$T/user.css"  $B/app.css   # inlined, replaces the @import
+curl -fsSL -o "$T/theme.js"  $B/hazy.js   # inlined, replaces the loader
+curl -fsSL -o "$T/color.ini" $B/color.ini
+```
+
+`hazy.js` self-guards on `Spicetify.Platform`, so inlining it as `theme.js` works fine. Costs you
+auto-updates — re-run to bump. One remote asset survives: the default background is an imgur link,
+which goes away the moment you set a custom one. Wants `overwrite_assets 1`, unlike TextMinimal.
+
+The 104KB of vendored CSS/JS isn't committed here — same rule as TextMinimal, no upstream theme
+forks in this repo. The pinned commit above is the reproducible part.
+
+### adblock
+
+`adblockify.js` ([rxri](https://github.com/rxri/spicetify-extensions)) — the one genuinely maintained
+spicetify ad blocker, and effectively the only first-tier option. It disables the audio, billboard,
+leaderboard, sponsored-playlist, in-stream and VTO ad managers, repoints ad-slot endpoints at
+`localhost/no/thanks`, forces `product: premium` overrides, and hides the upgrade CTA. The
+`CharlieS1103` fork is the same idea, older and smaller. The bundled `autoSkipVideo.js` looks like a
+candidate and isn't — its source explicitly *excludes* ads.
+
+```sh
+curl -fsSL -o ~/.config/spicetify/Extensions/adblockify.js \
+  https://raw.githubusercontent.com/rxri/spicetify-extensions/main/adblock/adblock.js
+spicetify config extensions adblockify.js && spicetify apply
+```
+
+Against Spotify's ToS, and accounts do occasionally get flagged for it. Known tradeoff.
+
+### the update tax
+
+Spotify auto-updates itself, and every update replaces `xpui.spa` and deletes the patched folder —
+theme, extensions, all of it. Nothing errors. It's just silently stock again, which is a genuinely
+confusing way to find out. The fix, after every Spotify update:
+
+```sh
+spicetify backup apply
+```
+
+Plain `apply` is not enough — the backup still points at the old build.
+
+### extensions
+
+Kept thin on purpose: `adblockify` and `fullAppDisplay` (the only two that earn a topbar button),
+plus `shuffle+` and `keyboardShortcut`, which draw no UI at all. `popupLyrics` is out — the
+`lyrics-plus` custom app puts a second lyrics button in the same corner, and two lyrics buttons is
+one lyrics button too many.
+
+### TextMinimal, the fallback
+
+Spicetify's stock [`text`](https://github.com/spicetify/spicetify-themes/tree/master/text) theme
+with `overrides.css` layered on top. Only the overrides live here, not a fork of the upstream theme.
+
+Stock `text` is a deliberately stark monospace wireframe, and I liked the font but not the wireframe
+part. What the overrides undo:
 
 - **Pane labels.** It draws `Pages` / `Library` / `Main` / `Playing` / `Sidebar` on each panel via
   `::before`, positioned with `margin: -10px`. Which means the top one renders *above* its own
@@ -48,15 +116,14 @@ wireframe part. What the overrides undo:
   one row and `Albums` truncated to `Albur›`. They wrap now.
 - **A stray `/`** that hung on its own line under the elapsed-time counter.
 
-Colour scheme is **Nord**. Anything in the theme's `color.ini` works — `Kanagawa`, `TokyoNight`,
-`Gruvbox`, `RosePine`, `CatppuccinMocha`:
+Its `color.ini` carries the good schemes — `Kanagawa`, `TokyoNight`, `Gruvbox`, `RosePine`,
+`CatppuccinMocha`. Switching back is one line:
 
 ```sh
-spicetify config color_scheme Kanagawa && spicetify apply
+spicetify config current_theme TextMinimal color_scheme Kanagawa && spicetify apply
 ```
 
-Extensions kept thin on purpose: `fullAppDisplay` and `popupLyrics` (the only two that earn their
-topbar buttons), plus `shuffle+` and `keyboardShortcut`, which draw no UI at all.
+Hazy ships exactly one scheme, `Base`.
 
 `config-xpui.ini` is here for reference — it hardcodes `spotify_path` and `prefs_path` and pins a
 `[Backup]` version to my Spotify build, so it isn't portable as-is.
