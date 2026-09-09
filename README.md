@@ -92,6 +92,24 @@ spicetify backup apply
 
 Plain `apply` is not enough — the backup still points at the old build.
 
+`UpdateSpicetify.sh` wraps that. Run bare it does the whole thing — quit Spotify, `spicetify
+upgrade`, `backup apply`, relaunch — and `--repair` skips the upgrade when you just want the patch
+back without a network round-trip.
+
+The useful part is `--check`, wired into `.zshrc`:
+
+```sh
+[[ -x "$HOME/UpdateSpicetify.sh" ]] && "$HOME/UpdateSpicetify.sh" --check
+```
+
+It is one `stat`. The patch lives as an extracted `xpui/` folder and a Spotify update deletes it,
+so testing that one directory *is* the health check — no version parsing, no `defaults read`, no
+fork of spicetify itself. Silent when things are fine, one yellow line when they aren't.
+
+Deliberately does **not** self-repair on startup. Reapplying takes ~20s and kills Spotify, and
+having a random new terminal tab do that mid-song is worse than the problem it solves. The warning
+tells you; fixing it stays a decision you make.
+
 ### extensions
 
 Kept thin on purpose: `adblockify` and `fullAppDisplay` (the only two that earn a topbar button),
