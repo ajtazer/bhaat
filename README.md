@@ -9,9 +9,7 @@ starship. Configs land here whenever I get bored of how something looks, which i
 starship/      the prompt
 spicetify/     Spotify
 ccstatusline/  Claude Code status line
-nvim/          NvChad user config
-neofetch/      the obligatory fetch
-git/            gitconfig
+git/           gitconfig
 ```
 
 ---
@@ -79,14 +77,10 @@ weekly percentages sitting right next to it. As a bar you can actually read it a
 Schema v4. Wants [ccstatusline](https://github.com/sirmalloc/ccstatusline) and a `statusLine`
 entry in `~/.claude/settings.json`.
 
-## nvim
-
-NvChad user config. `lua/` is mine, NvChad itself is a plugin. `lazy-lock.json` pins versions.
-
 ## the rest
 
 Tools the setup leans on, all via brew: `eza` (ls with icons), `bat` (cat with highlighting),
-`fzf`, `zoxide`, `starship`, `neofetch`.
+`fzf`, `zoxide`, `starship`.
 
 ---
 
