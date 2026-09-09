@@ -92,9 +92,20 @@ spicetify backup apply
 
 Plain `apply` is not enough — the backup still points at the old build.
 
-`UpdateSpicetify.sh` wraps that. Run bare it does the whole thing — quit Spotify, `spicetify
-upgrade`, `backup apply`, relaunch — and `--repair` skips the upgrade when you just want the patch
-back without a network round-trip.
+`UpdateSpicetify.sh` wraps that, and decides *first* whether there is anything to do. Run bare, it
+compares the installed Spotify build against the `[Backup]` version in `config-xpui.ini` and checks
+the `xpui/` folder still exists. If both are fine it prints one line and exits without touching
+Spotify. `--force` reapplies anyway, for after a config change.
+
+That ordering matters. `spicetify backup apply` fails outright on a healthy install — you cannot
+back up over an already-patched Spotify, and it will tell you to restore first. So `backup apply`
+is only correct when Spotify has actually moved to a new build; the rest of the time the right
+command is plain `apply`. Picking between them is the whole job:
+
+| state | command |
+|---|---|
+| new Spotify build, or `xpui/` gone | `restore` if needed, then `backup apply` |
+| patch intact, versions match | `apply` — and only when asked |
 
 The useful part is `--check`, wired into `.zshrc`:
 
